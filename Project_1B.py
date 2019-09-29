@@ -1,8 +1,10 @@
+import math
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
 # Class to hold all information pertaining to function
-class Function():
+class Function:
     x_range = None
     equation = None
     scatter = False
@@ -12,19 +14,19 @@ class Function():
 
 
 # A class to graph a function, along with some helper functions
-class Graph():
+class Graph:
     def graph(self, functionList):
-        for function in functionList:
+        for delay, function in enumerate(functionList):
             if function.scatter:
                 plt.scatter(function.x_range, function.equation, c=function.color, label=function.name)
             elif function.line:
                 plt.plot(function.x_range, function.equation, function.color, label=function.name)
-
             plt.legend()
             plt.ylim(-2, 2)
-            plt.pause(1)
+            plt.pause((delay + 1) * .75)
 
         plt.show()
+
 
     # Multiplies two lists/arrays/tuples/nparrays together
     def multiply(self, x, y):
@@ -44,26 +46,18 @@ class Graph():
         return summation
 
 # A class to manage all linear equations that will be part of the graph
-class LinearEq():
-    def sumOfSquares(self, equation, N, T):
-        sumSq = 0
-        for n in range(N):
-            sumSq += (equation[n] - T[n]) ** 2
-
-        return (sumSq / 2)
-
-
-    # Gives an nparray of w values using equations 1.122 and 1.123 by
+class LinearEq:
+    # Gives an nparray of w values using equation derivative solution to equation 1.4 by
     # solving for w at a given M.
-    def minErrorFunction(self, M, N, X, T):
+    def regularization(self, M, N, X, T, r_lambda):
         matrixA = np.zeros((M + 1, M + 1))
 
         # The left-hand side of the equation
-        # Sigma from j = 0 to M of (Sigma from n = 1 to N of ((X at n) ^ (j + i)))
+        # Sigma from j = 0 to M of (Sigma from n = 1 to N of (((X at n) ^ (j + i)) + lambda))
         for i in range(M + 1):
             for j in range(M + 1):
                 for n in range(N):
-                    matrixA[i][j] += (X[n] ** (i + j))
+                    matrixA[i][j] += (X[n] ** (i + j) + r_lambda)
 
         vectorT = np.zeros((M + 1))
 
@@ -114,19 +108,20 @@ def main():
     # The original function with noise, 2*pi*x + noise
     noise = Function()
     noise.x_range = np.arange(0, 1, 0.1)
-    noise.equation = np.sin(2 * np.pi * noise.x_range) + np.random.normal(.05, .5, size = noise.x_range.size)
+    noise.equation = np.sin(2 * np.pi * noise.x_range) + np.random.normal(.05, .5, size=noise.x_range.size)
     noise.line = False
     noise.scatter = True
     noise.color = 'b'
     noise.name = "Points with Noise"
     functionList.append(noise)
 
-    M_list = [0, 1, 3, 9]
+    M = 9
+    lambda_list = [0, 1000, 100000, 1000000000]
     color_list = ['r', 'c', 'm', 'k']
 
-    for index, M in enumerate(M_list):
+    for index, r_lambda, in enumerate(lambda_list):
         # Solve for W
-        W = linEq.minErrorFunction(M, noise.x_range.size, noise.x_range, noise.equation)
+        W = linEq.regularization(M, noise.x_range.size, noise.x_range, noise.equation, r_lambda)
 
         # Use the W values to get the new polynomial
         polynomial = Function()
@@ -135,7 +130,7 @@ def main():
         polynomial.line = True
         polynomial.scatter = False
         polynomial.color = color_list[index]
-        polynomial.name = "Polynomial where M = " + str(M)
+        polynomial.name = "Polynomial where lambda = " + str(r_lambda)
 
         functionList.append(polynomial)
 
