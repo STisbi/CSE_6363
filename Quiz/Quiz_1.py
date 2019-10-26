@@ -3,6 +3,8 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Based off assignment 1
+
 # Class to hold all information pertaining to function
 class Function:
     x_range = None
