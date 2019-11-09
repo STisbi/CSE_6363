@@ -1,5 +1,6 @@
 import sys
 import ReadFromFile as rff
+import copy
 
 
 class Neighbor():
@@ -38,7 +39,7 @@ class Neighbor():
         self.ParseData()
         self.ExampleToDataType()
 
-        self.transformed_examples = self.examples.copy()
+        self.transformed_examples = copy.deepcopy(self.examples.copy())
         self.transformed_attributes = self.attributes.copy()
 
         self.TransformAttributes()
@@ -142,6 +143,10 @@ class Neighbor():
                         examples[key][index] = 0
                     elif attribute == self.attribute_values[attribute_name][1]:
                         examples[key][index] = 1
+                elif self.attribute_types[attribute_name] == self.categorical:
+                    for place, attribute_value in enumerate(self.attribute_values[attribute_name]):
+                        if attribute == attribute_value:
+                            examples[key][index] = place
 
 
     def TransformAttributes(self):
@@ -157,13 +162,13 @@ class Neighbor():
 
                 self.transformed_attributes[key] = new_list
 
-    def GetNewInstance(self):
+    def GetNewExample(self):
         for attribute in list(self.attributes.keys()):
             self.new_data.append(input(attribute + ": "))
 
-        self.ParseNewInstance()
+        self.ParseNewExample()
 
-    def ParseNewInstance(self):
+    def ParseNewExample(self):
         key = self.new_data[0]
         value = self.new_data[1:]
 
@@ -172,8 +177,31 @@ class Neighbor():
 
         self.TransformExamples(self.transformed_new_example)
 
-    def ComputeDistance(self):
+    def ClassifyNewExample(self, neighbor=1):
+        knn_dict = {}
 
+        for key in self.transformed_examples:
+            example = self.transformed_examples[key]
+            bi_data = []
+            # FIXME: Nope nope nope on the hard code
+            distance = self.CalculateHammingDistance(example[:-1], list(self.transformed_new_example.values())[0][:-1])
+
+            knn_dict[distance] = self.examples[key][-1]
+
+        key_list = list(knn_dict.keys())
+        key_list.sort()
+
+        for k in range(neighbor):
+            print("Nearest neighbor", k, ": ", knn_dict[key_list[k]])
+
+    def CalculateHammingDistance(self, example, new_example):
+        distance = 0
+
+        for index in range(len(example)):
+            if example[index] != new_example[index]:
+                distance += 1
+
+        return distance
 
 
 #######################################################
@@ -185,12 +213,12 @@ def main(argv):
         # knn.PrintTrainingFile()
         # knn.PrintAttributes()
         # knn.PrintDataType()
-        # knn.PrintTransformedData()
         # knn.PrintExamples()
         # knn.PrintTransformedExamples()
 
-        knn.GetNewInstance()
-        knn.PrintTransformedNewExample()
+        knn.GetNewExample()
+        # knn.PrintTransformedNewExample()
+        knn.ClassifyNewExample(neighbor=3)
     else:
         raise Exception("Path not given")
 
