@@ -4,16 +4,20 @@ import ReadFromFile as rff
 
 class Neighbor():
     examples = {}
+    new_example = {}
     attributes = {}
     attribute_types = {}
     attribute_values = {}
     attribute_values_num = {}
     transformed_attributes = {}
     transformed_examples = {}
+    transformed_new_example = {}
     key_index = {}
 
     attribute_names = []
     class_names = []
+    data = []
+    new_data = []
 
     unknown = "unknown"
     unary = "unary"
@@ -33,8 +37,12 @@ class Neighbor():
         # Separates each attribute type and it's examples into it's own list
         self.ParseData()
         self.ExampleToDataType()
+
+        self.transformed_examples = self.examples.copy()
+        self.transformed_attributes = self.attributes.copy()
+
         self.TransformAttributes()
-        self.TransformExamples()
+        self.TransformExamples(self.transformed_examples)
 
     # Prints straight from the file
     def PrintTrainingFile(self):
@@ -44,9 +52,17 @@ class Neighbor():
         for key in self.examples:
             print(key, ": ", self.examples[key])
 
+    def PrintNewExample(self):
+        for key in self.new_example:
+            print(key, ": ", self.new_example[key])
+
     def PrintTransformedExamples(self):
         for key in self.transformed_examples:
             print(key, ": ", self.transformed_examples[key])
+
+    def PrintTransformedNewExample(self):
+        for key in self.transformed_new_example:
+            print(key, ": ", self.transformed_new_example[key])
 
     def PrintAttributes(self):
         for key in self.attributes:
@@ -62,15 +78,10 @@ class Neighbor():
 
     def ParseData(self):
         # Data is an row by column array
-        data = self.util.GetStrList()
+        self.data = self.util.GetStrList()
 
-        self.ExamplesToList(data[1:])
-        self.AttrToDict(data)
-
-    def ExamplesToList(self, data):
-        for example in data:
-            self.examples[example[0]] = example[1:]
-
+        self.AttrToDict(self.data)
+        self.ExamplesToList(self.data[1:])
 
     def AttrToDict(self, data):
         # Iterate over column
@@ -90,6 +101,10 @@ class Neighbor():
 
             self.attributes[key] = value
 
+    def ExamplesToList(self, data):
+        for example in data:
+            self.examples[example[0]] = example[1:]
+
     def ExampleToDataType(self):
         for key in self.attributes:
             values = self.GetUniqueValues(self.attributes[key])
@@ -105,7 +120,6 @@ class Neighbor():
                 self.attribute_types[key] = self.categorical
 
             self.attribute_values[key] = values
-            # self.attribute_values_num[key] = self.ValueToNumber(values)
 
 
     def GetUniqueValues(self, attribute_list):
@@ -116,26 +130,21 @@ class Neighbor():
 
         return unique_values
 
-
-    def TransformExamples(self):
-        self.transformed_examples = self.examples.copy()
-
-        for column, key in enumerate(self.transformed_examples):
-            attributes_list = self.transformed_examples[key]
+    def TransformExamples(self, examples):
+        for column, key in enumerate(examples):
+            attributes_list = examples[key]
 
             for index, attribute in enumerate(attributes_list):
                 attribute_name = self.key_index[index]
 
                 if self.attribute_types[attribute_name] == self.binary:
                     if attribute == self.attribute_values[attribute_name][0]:
-                        self.transformed_examples[key][index] = 0
+                        examples[key][index] = 0
                     elif attribute == self.attribute_values[attribute_name][1]:
-                        self.transformed_examples[key][index] = 1
+                        examples[key][index] = 1
 
 
     def TransformAttributes(self):
-        self.transformed_attributes = self.attributes.copy()
-
         for key in self.transformed_attributes:
             if self.attribute_types[key] == self.binary:
                 unique_list = self.GetUniqueValues(self.transformed_attributes[key])
@@ -148,6 +157,25 @@ class Neighbor():
 
                 self.transformed_attributes[key] = new_list
 
+    def GetNewInstance(self):
+        for attribute in list(self.attributes.keys()):
+            self.new_data.append(input(attribute + ": "))
+
+        self.ParseNewInstance()
+
+    def ParseNewInstance(self):
+        key = self.new_data[0]
+        value = self.new_data[1:]
+
+        self.new_example[key] = value
+        self.transformed_new_example = self.new_example.copy()
+
+        self.TransformExamples(self.transformed_new_example)
+
+    def ComputeDistance(self):
+
+
+
 #######################################################
 #                        MAIN                         #
 #######################################################
@@ -159,7 +187,10 @@ def main(argv):
         # knn.PrintDataType()
         # knn.PrintTransformedData()
         # knn.PrintExamples()
-        knn.PrintTransformedExamples()
+        # knn.PrintTransformedExamples()
+
+        knn.GetNewInstance()
+        knn.PrintTransformedNewExample()
     else:
         raise Exception("Path not given")
 
