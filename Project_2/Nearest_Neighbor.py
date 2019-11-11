@@ -42,6 +42,7 @@ class Neighbor():
         self.transformed_examples = copy.deepcopy(self.examples.copy())
         self.transformed_attributes = self.attributes.copy()
 
+        # Takes the attributes of each example and transforms it to a number
         self.TransformAttributes()
         self.TransformExamples(self.transformed_examples)
 
@@ -84,6 +85,8 @@ class Neighbor():
         self.AttrToDict(self.data)
         self.ExamplesToList(self.data[1:])
 
+    # Each attribute label (the top row) becomes the key
+    # and all possible values that it can take become a list of values
     def AttrToDict(self, data):
         # Iterate over column
         for column in range(len(data[0])):
@@ -102,10 +105,12 @@ class Neighbor():
 
             self.attributes[key] = value
 
+    # First column becomes the key and the remaining columns the values
     def ExamplesToList(self, data):
         for example in data:
             self.examples[example[0]] = example[1:]
 
+    # Categorizes each attribute as unary, binary, or categorical
     def ExampleToDataType(self):
         for key in self.attributes:
             values = self.GetUniqueValues(self.attributes[key])
@@ -122,7 +127,34 @@ class Neighbor():
 
             self.attribute_values[key] = values
 
+    #     self.TransCatToBin()
+    #     self.UpdateExamples(self.examples)
+    #
+    # def TransCatToBin(self):
+    #     new_attribute_dict = copy.deepcopy(self.attributes.copy())
+    #
+    #     for key in self.attributes:
+    #         if self.attribute_types[key] == self.categorical:
+    #             value_list = self.GetUniqueValues(self.attributes[key])
+    #
+    #             for value_key in value_list:
+    #                 if value_key not in new_attribute_dict:
+    #                     new_attribute_dict[value_key] = ["yes", "no"]
+    #
+    #     self.attributes = new_attribute_dict
+    #
+    # def UpdateExamples(self, examples):
+    #     for column, key in enumerate(examples):
+    #         attributes_list = examples[key]
+    #
+    #         for index, attribute in enumerate(attributes_list):
+    #             for attribute_label in self.attributes:
+    #                 if attribute == attribute_label:
+    #
+    #                     attribute_name = self.key_index[index]
 
+
+    # Given a list of attribute values, returns the unique values from the list
     def GetUniqueValues(self, attribute_list):
         unique_values = []
         for attribute in attribute_list:
@@ -131,6 +163,7 @@ class Neighbor():
 
         return unique_values
 
+    # Converts each attribute from an example to numerical values
     def TransformExamples(self, examples):
         for column, key in enumerate(examples):
             attributes_list = examples[key]
@@ -148,7 +181,7 @@ class Neighbor():
                         if attribute == attribute_value:
                             examples[key][index] = place
 
-
+    # Transforms each attribute value from a given attribute label to numerical values
     def TransformAttributes(self):
         for key in self.transformed_attributes:
             if self.attribute_types[key] == self.binary:
@@ -162,12 +195,14 @@ class Neighbor():
 
                 self.transformed_attributes[key] = new_list
 
+    # Gets new user input values
     def GetNewExample(self):
         for attribute in list(self.attributes.keys()):
             self.new_data.append(input(attribute + ": "))
 
         self.ParseNewExample()
 
+    # Parses the new example into numerical values
     def ParseNewExample(self):
         key = self.new_data[0]
         value = self.new_data[1:]
@@ -177,6 +212,7 @@ class Neighbor():
 
         self.TransformExamples(self.transformed_new_example)
 
+    # Classifies the new example based on knn neighbors
     def ClassifyNewExample(self, neighbor=1):
         knn_dict = {}
 
