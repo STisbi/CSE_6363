@@ -16,11 +16,13 @@ class Neighbor():
     key_index = {}
     attribute_distribution = {}
     frequency_table = {}
+    class_frequency = {}
 
     attribute_names = []
     class_names = []
     data = []
     new_data = []
+    frequency_table_dict_list = []
 
     unknown = "unknown"
     unary = "unary"
@@ -100,7 +102,7 @@ class Neighbor():
                 if row == 0:
                     key = data[row][column]
 
-                    self.attribute_names.extend(key)
+                    self.attribute_names.append(key)
                     self.key_index[column - 1] = key
                 else:
                     value.append(data[row][column])
@@ -232,7 +234,7 @@ class Neighbor():
         value = self.new_data[1:]
 
         self.new_example[key] = value
-        self.transformed_new_example = self.new_example.copy()
+        self.transformed_new_example = copy.deepcopy(self.new_example.copy())
 
         self.TransformExamples(self.transformed_new_example)
 
@@ -267,6 +269,12 @@ class Neighbor():
         for key in self.examples:
             example = self.examples[key]
             class_label = example[-1]
+
+            if class_label in self.class_frequency:
+                self.class_frequency[class_label] += 1
+            else:
+                self.class_frequency[class_label] = 1
+
             for index, attribute in enumerate(example[:-1]):
                 attribute_label = self.key_index[index]
                 key = (attribute_label, attribute, class_label)
@@ -274,6 +282,71 @@ class Neighbor():
                     self.frequency_table[key] += 1
                 else:
                     self.frequency_table[key] = 1
+
+        for key in self.frequency_table:
+            attr_to_class = {}
+            class_to_freq = {}
+            label_to_attr = {}
+
+            class_to_freq[key[2]] = self.frequency_table[key]
+            attr_to_class[key[1]] = class_to_freq
+            label_to_attr[key[0]] = attr_to_class
+
+            self.frequency_table_dict_list.append(label_to_attr)
+
+        x = 2
+
+
+    def GetFrequencyTable(self):
+        for key in self.frequency_table:
+            print(key, self.frequency_table[key])
+
+    def ClassifyNaiveBayesian(self):
+        class_likelihood = {}
+        class_names = self.GetUniqueValues(self.attributes[self.attribute_names[-1]])
+        for class_label in class_names:
+            numerator = []
+
+            for key in self.new_example:
+                ex_attr_list = self.new_example[key]
+                for index, ex_attr in enumerate(ex_attr_list[:-1]):
+                    attribute_label = self.key_index[index]
+
+                    numerator.append(self.GetProbability(attribute_label, ex_attr, class_label))
+
+            product = 1
+            for probability in numerator:
+                product *= probability
+
+            class_probability = product / self.class_frequency[class_label]
+
+            class_likelihood[class_probability] = class_label
+
+        maxKey = max(class_likelihood.keys())
+
+        print("Naives Bayes Classification:", class_likelihood[maxKey])
+
+
+    def GetProbability(self, attribute_label, attribute, class_label):
+        key = (attribute_label, attribute, class_label)
+        if not key in self.frequency_table:
+            return 0
+
+        numerator = self.frequency_table[attribute_label, attribute, class_label]
+        denominator = 0
+
+        for dict in self.frequency_table_dict_list:
+            for attr_label_key in dict:
+                attr_to_class = dict[attr_label_key]
+                for attr_key in attr_to_class:
+                    class_to_freq = attr_to_class[attr_key]
+                    for class_key in class_to_freq:
+                        if attr_label_key == attribute_label and attr_key == attribute:
+                            denominator += class_to_freq[class_key]
+
+        probability = numerator / denominator
+
+        return probability
 
 
 
@@ -289,12 +362,15 @@ def main(argv):
         # knn.PrintExamples()
         # knn.PrintTransformedExamples()
 
-        # knn.GetNewExample()
+        knn.GetNewExample()
         # knn.PrintTransformedNewExample()
-        # knn.ClassifyNewExample(neighbor=3)
+        knn.ClassifyNewExample(neighbor=3)
 
+        # knn.CalcAttributeOccurences()
         # knn.GetAttributeDistribution()
         knn.CalculateFreqTable()
+        # knn.GetFrequencyTable()
+        knn.ClassifyNaiveBayesian()
     else:
         raise Exception("Path not given")
 
