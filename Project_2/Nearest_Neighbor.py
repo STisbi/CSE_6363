@@ -283,6 +283,8 @@ class Neighbor():
                 else:
                     self.frequency_table[key] = 1
 
+        # Converts the frequency tabel into a dictionary
+        # list[attribute_dictionary[example attribute dictionary[class label dictionary]]] = number of occurences
         for key in self.frequency_table:
             attr_to_class = {}
             class_to_freq = {}
@@ -366,8 +368,8 @@ def main(argv):
         # knn.PrintTransformedNewExample()
         knn.ClassifyNewExample(neighbor=3)
 
-        # knn.CalcAttributeOccurences()
-        # knn.GetAttributeDistribution()
+        knn.CalcAttributeOccurences()
+        knn.GetAttributeDistribution()
         knn.CalculateFreqTable()
         # knn.GetFrequencyTable()
         knn.ClassifyNaiveBayesian()
