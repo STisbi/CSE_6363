@@ -14,6 +14,8 @@ class Neighbor():
     transformed_examples = {}
     transformed_new_example = {}
     key_index = {}
+    attribute_distribution = {}
+    frequency_table = {}
 
     attribute_names = []
     class_names = []
@@ -195,6 +197,28 @@ class Neighbor():
 
                 self.transformed_attributes[key] = new_list
 
+    def CalcAttributeOccurences(self):
+        for key in self.attributes:
+            unique_attribute_list = self.GetUniqueValues(self.attributes[key])
+            attribute_list = self.attributes[key]
+            for attribute in unique_attribute_list:
+                self.attribute_distribution[attribute] = attribute_list.count(attribute)
+
+    def GetAttributeDistribution(self):
+        self.CalcAttributeOccurences()
+
+        for key in self.attributes:
+            attribute_list = self.GetUniqueValues(self.attributes[key])
+
+            print("******************************")
+            print("Attribute:", key)
+
+            for attribute in attribute_list:
+                distribution = self.attribute_distribution[attribute] / len(self.attributes[key])
+                print("{0}: {1:.2f}".format(attribute, distribution))
+
+            print("******************************")
+
     # Gets new user input values
     def GetNewExample(self):
         for attribute in list(self.attributes.keys()):
@@ -239,6 +263,19 @@ class Neighbor():
 
         return distance
 
+    def CalculateFreqTable(self):
+        for key in self.examples:
+            example = self.examples[key]
+            class_label = example[-1]
+            for index, attribute in enumerate(example[:-1]):
+                attribute_label = self.key_index[index]
+                key = (attribute_label, attribute, class_label)
+                if key in self.frequency_table:
+                    self.frequency_table[key] += 1
+                else:
+                    self.frequency_table[key] = 1
+
+
 
 #######################################################
 #                        MAIN                         #
@@ -252,9 +289,12 @@ def main(argv):
         # knn.PrintExamples()
         # knn.PrintTransformedExamples()
 
-        knn.GetNewExample()
+        # knn.GetNewExample()
         # knn.PrintTransformedNewExample()
-        knn.ClassifyNewExample(neighbor=3)
+        # knn.ClassifyNewExample(neighbor=3)
+
+        # knn.GetAttributeDistribution()
+        knn.CalculateFreqTable()
     else:
         raise Exception("Path not given")
 
