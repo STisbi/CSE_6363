@@ -1,0 +1,106 @@
+1:
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+2:
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+3
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+4
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+5
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+6
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+7
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+8
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+9
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+
+10
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+11
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+12
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+13
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+14
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+
+15
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+
+16
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+17
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+18
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+19
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K
+20
+Nearest neighbor 0 :  <=50K
+Nearest neighbor 1 :  <=50K
+Nearest neighbor 2 :  <=50K

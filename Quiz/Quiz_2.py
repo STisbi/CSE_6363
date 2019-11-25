@@ -1,6 +1,7 @@
 import sys
-import ReadFromFile as rff
+from Project_2 import ReadFromFile as rff
 import copy
+import math
 
 
 class Neighbor():
@@ -21,9 +22,11 @@ class Neighbor():
     attribute_names = []
     class_names = []
     data = []
+    training_data = []
     new_data = []
     frequency_table_dict_list = []
 
+    numerical = "numerical"
     unknown = "unknown"
     unary = "unary"
     binary = "binary"
@@ -86,8 +89,13 @@ class Neighbor():
         # Data is an row by column array
         self.data = self.util.GetStrList()
 
-        self.AttrToDict(self.data)
-        self.ExamplesToList(self.data[1:])
+        # The top 10 values have the noisy values, so start with the remaining 990, but keep the headers
+        header = self.data[0]
+        self.training_data = self.data[10:]
+        self.training_data.insert(0, header)
+
+        self.AttrToDict(self.training_data)
+        self.ExamplesToList(self.training_data[1:])
 
     # Each attribute label (the top row) becomes the key
     # and all possible values that it can take become a list of values
@@ -120,7 +128,9 @@ class Neighbor():
             values = self.GetUniqueValues(self.attributes[key])
             num_values = len(values)
 
-            if num_values == 0:
+            if values[0].isdigit():
+                self.attribute_types[key] = self.numerical
+            elif num_values == 0:
                 self.attribute_types[key] = self.unknown
             elif num_values == 1:
                 self.attribute_types[key] = self.unary
@@ -130,6 +140,7 @@ class Neighbor():
                 self.attribute_types[key] = self.categorical
 
             self.attribute_values[key] = values
+
 
     #     self.TransCatToBin()
     #     self.UpdateExamples(self.examples)
@@ -184,6 +195,8 @@ class Neighbor():
                     for place, attribute_value in enumerate(self.attribute_values[attribute_name]):
                         if attribute == attribute_value:
                             examples[key][index] = place
+                elif self.attribute_types[attribute_name] == self.numerical:
+                    pass
                 else:
                     for place, attribute_value in enumerate(self.attribute_values[attribute_name]):
                         if attribute == attribute_value:
@@ -227,8 +240,10 @@ class Neighbor():
 
     # Gets new user input values
     def GetNewExample(self):
-        for attribute in list(self.attributes.keys()):
-            self.new_data.append(input(attribute + ": "))
+        # for attribute in list(self.attributes.keys()):
+        #     self.new_data.append(input(attribute + ": "))
+        line = input("Enter data instance: ")
+        self.new_data = line.split()
 
         self.ParseNewExample()
 
@@ -250,9 +265,22 @@ class Neighbor():
             example = self.transformed_examples[key]
             bi_data = []
             # FIXME: Nope nope nope on the hard code
-            distance = self.CalculateHammingDistance(example[:-1], list(self.transformed_new_example.values())[0][:-1])
+            mod_part = example[0:1]
+            mod_example = example[2:]
+            mod_example.insert(0, mod_part[0])
 
-            knn_dict[distance] = self.examples[key][-1]
+            mod_new_part = list(self.transformed_new_example.values())[0][0:1]
+            mod_new_example = list(self.transformed_new_example.values())[0][2:]
+            mod_new_example.insert(0, mod_new_part[0])
+
+            distance = self.CalculateDistance(mod_example, mod_new_example)
+
+            # THE ELEMENT HERE HARDCODED IN IS THE FIELD TO CLASSIFY TO
+            # self.examples[key][0] for WorkClass
+            # self.examples[key][5] for Occupation
+            # self.examples[key][12] for NativeCountry
+            # self.examples[key][13] for Income
+            knn_dict[distance] = self.examples[key][13]
 
         key_list = list(knn_dict.keys())
         key_list.sort()
@@ -268,6 +296,20 @@ class Neighbor():
                 distance += 1
 
         return distance
+
+    def CalculateDistance(self, example, new_example):
+        distance = 0
+
+        for index in range(len(example)):
+            if isinstance(example[index], str):
+                distance += 2 * abs(int(example[index]) - int(new_example[index])) / (int(example[index]) + int(new_example[index]) + 1)
+            else:
+                if example[index] != new_example[index]:
+                    distance += 1
+
+        return distance
+
+
 
     def CalculateFreqTable(self):
         for key in self.examples:
@@ -372,11 +414,11 @@ def main(argv):
         # knn.PrintTransformedNewExample()
         knn.ClassifyNewExample(neighbor=3)
 
-        knn.CalcAttributeOccurences()
-        knn.GetAttributeDistribution()
-        knn.CalculateFreqTable()
+        # knn.CalcAttributeOccurences()
+        # knn.GetAttributeDistribution()
+        # knn.CalculateFreqTable()
         # knn.GetFrequencyTable()
-        knn.ClassifyNaiveBayesian()
+        # knn.ClassifyNaiveBayesian()
     else:
         raise Exception("Path not given")
 
