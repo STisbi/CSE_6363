@@ -14,12 +14,17 @@ class PotassiumMeans:
         self.mean_3 = mean_3
         self.sigma = sigma
 
-        self.distribution_1_x = [None] * self.number_of_samples
-        self.distribution_1_y = [None] * self.number_of_samples
-        self.distribution_2_x = [None] * self.number_of_samples
-        self.distribution_2_y = [None] * self.number_of_samples
-        self.distribution_3_x = [None] * self.number_of_samples
-        self.distribution_3_y = [None] * self.number_of_samples
+        self.distribution_1_x = np.zeros(self.number_of_samples)
+        self.distribution_1_y = np.zeros(self.number_of_samples)
+        self.distribution_2_x = np.zeros(self.number_of_samples)
+        self.distribution_2_y = np.zeros(self.number_of_samples)
+        self.distribution_3_x = np.zeros(self.number_of_samples)
+        self.distribution_3_y = np.zeros(self.number_of_samples)
+
+        self.k_means_data = np.zeros((self.number_of_samples * 3, 2))
+
+        self.result = None
+        self.centroids = np.zeros((self.clusters, 2))
 
         self.confusion_matrix = None
         self.cost_matrix = None
@@ -30,11 +35,38 @@ class PotassiumMeans:
             self.distribution_2_x[index], self.distribution_2_y[index] = np.random.normal(self.mean_2, self.sigma)
             self.distribution_3_x[index], self.distribution_3_y[index] = np.random.normal(self.mean_3, self.sigma)
 
-    def Plot_Distributions(self):
-        # Plot the distributions
-        plt.scatter(self.distribution_1_x, self.distribution_1_y, c='r')
-        plt.scatter(self.distribution_2_x, self.distribution_2_y, c='g')
-        plt.scatter(self.distribution_3_x, self.distribution_3_y, c='b')
+        # Put the x values in the first column and y values in the second column
+        self.k_means_data[:, 0] = np.concatenate([self.distribution_1_x, self.distribution_2_x, self.distribution_3_x])
+        self.k_means_data[:, 1] = np.concatenate([self.distribution_1_y, self.distribution_2_y, self.distribution_3_y])
+
+
+    def Run_K_Means(self):
+        # This is hacky but for now, whatever
+        temp_x = np.concatenate([self.distribution_1_x, self.distribution_2_x, self.distribution_3_x])
+        temp_y = np.concatenate([self.distribution_1_y, self.distribution_2_y, self.distribution_3_y])
+
+        # Put the x values in the first column and y values in the second column
+        self.k_means_data[:, 0] = temp_x
+        self.k_means_data[:, 1] = temp_y
+
+        kmeans = KMeans(n_clusters=self.clusters)
+        kmeans.fit(self.k_means_data)
+        self.result = kmeans.predict(self.k_means_data)
+
+        self.centroids[:, 0] = kmeans.cluster_centers_[:, 0]
+        self.centroids[:, 1] = kmeans.cluster_centers_[:, 1]
+
+    def Plot_Distributions(self, title, before_k_means=False):
+        if before_k_means:
+            plt.scatter(self.distribution_1_x, self.distribution_1_y, c='r', label="Mean at " + str(self.mean_1))
+            plt.scatter(self.distribution_2_x, self.distribution_2_y, c='g', label="Mean at " + str(self.mean_2))
+            plt.scatter(self.distribution_3_x, self.distribution_3_y, c='b', label="Mean at " + str(self.mean_3))
+        else:
+            # Plot the distribution, using the result of the k means as the color differentiator
+            plt.scatter(self.k_means_data[:, 0], self.k_means_data[:, 1], c=self.result)
+
+            # Plots the centroids
+            plt.scatter(self.centroids[:, 0], self.centroids[:, 1], c='k', s=200, alpha=.5, label="K-Means Centroids")
 
         # Plot the axis
         plt.plot([0 for x in range(-20, 20)], [x for x in range(-20, 20)], c='k')
@@ -44,41 +76,23 @@ class PotassiumMeans:
         plt.xlim(-15, 15)
         plt.ylim(-15, 15)
 
+        # Set the legend and title
+        plt.legend()
+        plt.title(title)
+
         # Show it
         plt.show()
-
-    def Get_Confusion_Matrix(self):
-        return self.confusion_matrix
-
-    def Get_Cost_Matrix(self):
-        return self.cost_matrix
-
-    def Get_Accuracy(self):
-        return np.trace(self.cost_matrix) / np.sum(self.cost_matrix)
-
-    def Print_Confusion_Matrix(self):
-        print("********** Confusion Matrix **********\n", self.Get_Confusion_Matrix(), "\n**************************************")
-
-    def Print_Cost_Matrix(self):
-        print("************ Cost Matrix *************\n", self.Get_Cost_Matrix(), "\n**************************************")
-
-    def Print_Accuracy(self):
-        print("Accuracy =", self.Get_Accuracy())
 
 #######################################################
 #                        MAIN                         #
 #######################################################
 def main():
-    pot_means = PotassiumMeans(3, 100, [5, 5], [-5, 5], [-5, -5], 2)
+    pot_means = PotassiumMeans(3, 100, [5, 5], [-5, 5], [-5, -5], 4)
 
     pot_means.Generate_Distributions()
-    pot_means.Plot_Distributions()
-
-    # pot_means.Run_K_Means()
-    #
-    # pot_means.Print_Confusion_Matrix()
-    # pot_means.Print_Cost_Matrix()
-    # pot_means.Print_Accuracy()
+    pot_means.Plot_Distributions("Before K-Means with Sigma 4", before_k_means=True)
+    pot_means.Run_K_Means()
+    pot_means.Plot_Distributions("After K-Means with Predicted Data with Sigma 4", before_k_means=False)
 
 # The 0th argument is the file name
 if __name__ == "__main__":
