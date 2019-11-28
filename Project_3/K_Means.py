@@ -95,9 +95,6 @@ def main():
     pot_means.Print_Cost_Matrix()
     pot_means.Print_Accuracy()
 
-    pot_means.Confusion_To_Cost_Example()
-
-
 # The 0th argument is the file name
 if __name__ == "__main__":
     main()
